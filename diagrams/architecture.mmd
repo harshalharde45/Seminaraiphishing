@@ -1,0 +1,46 @@
+flowchart TD
+    A([🖥️ User / Analyst]) --> B[Streamlit Web Interface]
+
+    B --> C{Data Source}
+    C -->|Synthetic| D[Synthetic Dataset Generator]
+    C -->|Upload| E[CSV File Upload]
+
+    D --> F[Data Validation Layer]
+    E --> F
+
+    F --> G{Valid?}
+    G -->|❌ Invalid| H[Error Message + Guidance]
+    H --> B
+    G -->|✅ Valid| I[Data Preprocessing Pipeline]
+
+    I --> J[Feature Extraction\nColumnTransformer]
+    J --> K{Has Labels?}
+
+    K -->|✅ Labelled| L[Stratified Train/Test Split\n75% train · 25% test]
+    K -->|❌ No Labels| M[Prediction-Only Mode]
+
+    L --> N[Random Forest Training\n150 trees · balanced weights]
+    N --> O[Held-Out Test Evaluation]
+    O --> P[Metrics: Acc · Prec · Rec · F1\nConfusion Matrix · FP/FN]
+
+    M --> Q[Apply Trained Model]
+    O --> Q
+    Q --> R[Prediction Results\nLabel · Risk Level · Confidence]
+
+    P --> S[Dashboard Visualisations]
+    R --> S
+
+    S --> T[Threat Analysis View]
+    S --> U[Model Evaluation View]
+    S --> V[Security Insights View]
+
+    T --> W([Analyst Review\n⚠️ Human decision required])
+    U --> W
+    V --> W
+
+    style A fill:#0f2040,color:#00d4ff,stroke:#00d4ff
+    style W fill:#0f2040,color:#00d4ff,stroke:#00d4ff
+    style H fill:#3a1020,color:#ff4b6e,stroke:#ff4b6e
+    style N fill:#0f2040,color:#00cc6a,stroke:#00cc6a
+    style O fill:#0f2040,color:#00d4ff,stroke:#00d4ff
+

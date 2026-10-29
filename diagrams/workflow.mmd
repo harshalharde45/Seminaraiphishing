@@ -1,0 +1,51 @@
+flowchart TD
+    START([▶ Start Application\nstreamlit run app.py]) --> LOAD
+
+    LOAD{Load Data} -->|Use demo| GEN[Generate Synthetic Dataset\n1000 records · 5 classes]
+    LOAD -->|Upload CSV| UPLOAD[Parse and Validate CSV]
+
+    GEN --> VAL
+    UPLOAD --> VAL{Schema Valid?}
+    VAL -->|❌ Missing columns\nor empty file| ERR1[Display Error\nShow expected format]
+    ERR1 --> LOAD
+    VAL -->|✅ Valid| INSPECT
+
+    INSPECT[Data Explorer\nPreview · Column info · Class distribution] --> PREP
+
+    PREP[Preprocess\nFill nulls · Remove inf · Encode] --> LABEL_CHECK
+
+    LABEL_CHECK{Label column\npresent?} -->|❌ No label| PRED_ONLY[Prediction-Only Mode]
+    LABEL_CHECK -->|✅ Has label| SPLIT
+
+    SPLIT[Stratified 75/25 Split\nFixed random seed = 42] --> TRAIN_CHECK
+
+    TRAIN_CHECK{Enough samples\nper class ≥ 5?} -->|❌ Too few| ERR2[Display Error\nNeed more samples]
+    ERR2 --> LOAD
+    TRAIN_CHECK -->|✅ Sufficient| TRAIN
+
+    TRAIN[Train Random Forest\n150 trees · balanced weights\nColumnTransformer preprocessing] --> EVAL
+
+    EVAL[Evaluate on Held-Out Test Set\nAccuracy · Precision · Recall · F1] --> METRICS
+
+    METRICS[Display Metrics\nConfusion Matrix · Per-class Scores\nFP/FN Counts · Feature Importance] --> ANALYSE
+
+    ANALYSE[Analyse New Records\nClassify · Assign Risk Level\nCompute Confidence Score] --> DISPLAY
+
+    PRED_ONLY --> ANALYSE
+
+    DISPLAY[Dashboard\nThreat Analysis · Insights\nModel Evaluation · Limitations] --> ANALYST
+
+    ANALYST([👁️ Analyst Review\nInterpret predictions\nApply domain knowledge\nHuman decision]) --> DONE
+
+    DONE([✅ Session Complete\nRetrain with new data\nor upload new records])
+
+    ERR1 -.->|Retry| LOAD
+    ERR2 -.->|Retry| LOAD
+
+    style START fill:#0f2040,color:#00d4ff,stroke:#00d4ff
+    style DONE fill:#0f2040,color:#00cc6a,stroke:#00cc6a
+    style ANALYST fill:#0f2040,color:#00d4ff,stroke:#00d4ff
+    style ERR1 fill:#3a1020,color:#ff4b6e,stroke:#ff4b6e
+    style ERR2 fill:#3a1020,color:#ff4b6e,stroke:#ff4b6e
+    style TRAIN fill:#0f3020,color:#00cc6a,stroke:#00cc6a
+
